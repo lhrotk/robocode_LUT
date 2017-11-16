@@ -34,7 +34,7 @@ public interface CommonInterface {
 	 *            The new value to learn
 	 * @return The error in the output for that input vector
 	 */
-	public double train(double[] X, double argValue);
+	public double train(double[] X, double argValue, boolean offPolicy, double epsilon);
 
 	/**
 	 * A method to write either a LUT or weights of an neural net to a file.

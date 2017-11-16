@@ -170,10 +170,12 @@ public class AIRobots extends AdvancedRobot {
 			this.parseAction();
 			turnGunRight(360);
 			//System.out.println(this.reward+", action: "+this.currentAction);
-			this.currentAction = this.lut.loopUpAction(this.getState(rawInputs), 1, 0)[6];// decide a
+			this.currentAction = this.lut.loopUpAction(this.getState(rawInputs), 1, 0.05)[6];// decide a
 			this.rawInputs[6] = this.currentAction;
-			this.lut.train(this.getState(rawInputs), this.reward);
+			this.lut.train(this.getState(rawInputs), 0, true, 1);
 			//System.out.println(this.reward);
+//			this.currentAction = this.lut.train(this.getState(rawInputs), this.reward, false, 0.2);
+//			this.rawInputs[6] = this.currentAction;
 		}
 	}
 
@@ -205,6 +207,7 @@ public class AIRobots extends AdvancedRobot {
 	
 	public void onWin(WinEvent e) {
 		this.battleResult[this.getRoundNum()%100]=1;
+		this.lut.train(this.getState(rawInputs), 5, true, 0.05);
 		File fileH = new File("history");
 		File fileW = new File("winResult");
 		System.out.println("win");
@@ -218,6 +221,8 @@ public class AIRobots extends AdvancedRobot {
 		}
 		this.saveInt(fileW);
 		this.saveList(fileH);//overwrite the wrong result
+		File file = new File("data.properties");
+		this.lut.save(file);
 	}
 	
 	public void onDeathEvent(RobotDeathEvent e) {

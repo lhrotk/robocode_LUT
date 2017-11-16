@@ -89,12 +89,20 @@ public class LUTable implements LUTInterface {
 	}
 
 	@Override
-	public double train(double[] X, double argValue) {
+	public double train(double[] X, double argValue, boolean offPolicy, double epsilon) {
+		double result = 0;
 		if (this.lastState == null) {
 			this.lastState = new StateAction(this.inputQuantizer(X));
 		}else {
 			StateAction currentState = new StateAction(this.inputQuantizer(X));//Q(s', a');
-			this.loopUpAction(X, 1, 0);//important maxQ(s', a')
+			if(offPolicy){
+				this.loopUpAction(X, 1, 0);//important maxQ(s', a')
+			}
+			else{
+				double[] stateAction = this.loopUpAction(X, 1, epsilon);//important maxQ(s', a')
+				this.maxQ = this.outputFor(stateAction);
+				result = stateAction[stateAction.length-1];
+			}
 			double val;//Q(s, a)
 			if (!this.LUTable.containsKey(this.lastState)) {
 				val = 0;
@@ -104,11 +112,11 @@ public class LUTable implements LUTInterface {
 			val += this.alpha * (argValue + this.gamma * this.maxQ - val);
 			//System.out.println(Arrays.toString(X));
 			this.LUTable.put(this.lastState, val);
-
+     
 			//System.out.println(this.lastState.getStateAction()[6]+" get bonus: "+argValue);
 			this.lastState = currentState;
 		}
-		return 0;
+		return result;
 	}
 
 	/**
